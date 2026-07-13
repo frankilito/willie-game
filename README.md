@@ -8,7 +8,7 @@
 
 ## 在线直玩
 
-**https://<owner>.github.io/willie-game/** （部署后替换为实际地址）
+**https://frankilito.github.io/willie-game/**
 
 ## 本地运行
 
