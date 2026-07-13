@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>汽船威利：黄金汽笛失窃记</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css?v=5">
+</head>
+<body>
+<div id="game"></div>
+
+<!-- 老电影叠层：胶片颗粒/竖向划痕/暗角/曝光呼吸 -->
+<div id="grain"></div>
+<div id="scratches"></div>
+<div id="vignette"></div>
+<div id="flash"></div>
+
+<!-- HUD -->
+<div id="hud" style="display:none">
+  <div id="hearts"></div>
+  <canvas id="stamina" width="84" height="84"></canvas>
+  <div id="coins">◎ 0</div>
+  <div id="weapons"></div>
+  <canvas id="minimap" width="168" height="168"></canvas>
+  <div id="quest"></div>
+  <div id="fps" style="display:none"></div>
+</div>
+
+<div id="eprompt" style="display:none">E&nbsp;对话</div>
+<div id="dialog" style="display:none"><div id="dlg-name"></div><div id="dlg-text"></div><div id="dlg-more">▼ 空格继续</div></div>
+<div id="toast"></div>
+<div id="bossbar" style="display:none"><div id="boss-name">巨型蒸汽鹦鹉号</div><div id="boss-hp"><div id="boss-hp-fill"></div></div><div id="boss-phase">锅炉压力：正常</div></div>
+<div id="crosshair" style="display:none"></div>
+<div id="help" style="display:none"></div>
+
+<!-- 过场：4:3 黑边 + 默片字幕卡 -->
+<div id="letterbox" style="display:none"><div class="lb-bar lb-top"></div><div class="lb-bar lb-bot"></div></div>
+<div id="card" style="display:none"><div id="card-inner"></div></div>
+
+<!-- 标题菜单 -->
+<div id="title">
+  <div id="title-frame">
+    <h1>汽船威利</h1>
+    <h2>黄金汽笛失窃记</h2>
+    <p id="title-sub">一部 1928 年风格的互动黑白卡通</p>
+    <button id="btn-single">单人冒险</button>
+    <button id="btn-host">创建双人房间</button>
+    <div id="join-row">
+      <input id="room-input" maxlength="4" placeholder="房间码" autocomplete="off">
+      <button id="btn-join">加入房间</button>
+    </div>
+    <div id="room-code" style="display:none">房间码：<b id="room-code-text"></b><br><span>把码发给同伴，等待对方加入…</span></div>
+    <p id="disclaimer">基于 1928 年公共领域作品《Steamboat Willie》的独立再创作，与原权利方无隶属或背书关系。</p>
+    <p id="title-hint">WASD 移动 · 鼠标视角 · 空格跳跃/二段跳/滑翔 · 左键攻击 · 右键格挡 · F 救生圈 · C 翻滚 · E 对话 · H 帮助 · M 静音</p>
+  </div>
+</div>
+
+<!-- 报错叠层 -->
+<div id="err"></div>
+<script>
+/* 页面内置 error overlay：把 JS 报错直接叠到屏幕，便于 QA */
+(function () {
+  var box = document.getElementById('err'), count = 0;
+  function show(msg) {
+    count++;
+    box.style.display = 'block';
+    var d = document.createElement('div');
+    d.textContent = '⚠ ' + msg;
+    box.appendChild(d);
+    while (box.children.length > 8) box.removeChild(box.firstChild);
+  }
+  window.addEventListener('error', function (e) {
+    show((e.message || 'error') + '  @' + (e.filename || '').split('/').pop() + ':' + e.lineno);
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    show('promise: ' + (e.reason && e.reason.message || e.reason));
+  });
+  window.__errCount = function () { return count; };
+})();
+</script>
+
+<script src="vendor/three.min.js?v=5"></script>
+<script src="vendor/GLTFLoader.js?v=5"></script>
+<script src="vendor/DRACOLoader.js?v=5"></script>
+<script src="vendor/SkeletonUtils.js?v=5"></script>
+<script src="vendor/peerjs.min.js?v=5"></script>
+<script src="js/audio.js?v=5"></script>
+<script src="js/ui.js?v=5"></script>
+<script src="js/world.js?v=5"></script>
+<script src="js/player.js?v=5"></script>
+<script src="js/combat.js?v=5"></script>
+<script src="js/enemies.js?v=5"></script>
+<script src="js/npc.js?v=5"></script>
+<script src="js/story.js?v=5"></script>
+<script src="js/net.js?v=5"></script>
+<script src="js/main.js?v=5"></script>
+</body>
+</html>

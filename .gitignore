@@ -1,0 +1,8 @@
+node_modules/
+qa/node_modules/
+qa/package-lock.json
+qa/package.json
+qa/*.png
+qa/qa/
+.DS_Store
+*.log

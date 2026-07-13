@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>body{margin:0;background:#888}</style></head>
+<body>
+<script src="../vendor/three.min.js"></script>
+<script src="../vendor/GLTFLoader.js"></script>
+<script>
+window.RESULT = {loaded: [], errors: []};
+window.onerror = (m, s, l, c) => { window.RESULT.errors.push('' + m + ' @' + l + ':' + c); };
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x8a8a8a);
+const cam = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 500);
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+document.body.appendChild(renderer.domElement);
+scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+const key = new THREE.DirectionalLight(0xffffff, 0.8);
+key.position.set(5, 10, 7);
+scene.add(key);
+
+const MODELS = [
+  ['../assets/models/willie_mickey.glb', 'walk', 2.2, [0, 0, 3.2]],
+  ['../assets/models/minnie1928.glb', 'talk', 2.2, [0, 0, 3.2]],
+  ['../assets/models/blackcat_mate.glb', 'attack', 2.6, [0, 0, 4.0]],
+  ['../assets/models/steam_parrot.glb', 'fly', 42, [0, -8, 75]],
+];
+let idx = 0, mixer = null, current = null;
+
+function loadNext() {
+  if (idx >= MODELS.length) { window.RESULT.done = true; return; }
+  const [url, clipName, targetH, camPos] = MODELS[idx];
+  new THREE.GLTFLoader().load(url, (gltf) => {
+    const root = gltf.scene;
+    scene.add(root);
+    // report bones + clips
+    const bones = [];
+    root.traverse(o => { if (o.isBone || (o.type === 'Object3D' && gltf.skins)) {} });
+    const clips = gltf.animations.map(a => a.name);
+    window.RESULT.loaded.push({
+      url: url.split('/').pop(), clips,
+      nodeNames: gltf.scene.children.map(c => c.name),
+    });
+    mixer = new THREE.AnimationMixer(root);
+    const clip = gltf.animations.find(a => a.name === clipName) || gltf.animations[0];
+    mixer.clipAction(clip).play();
+    current = root;
+    cam.position.set(camPos[0], camPos[1] + targetH * 0.5, camPos[2]);
+    cam.lookAt(0, targetH * 0.45, 0);
+    window.RESULT.ready = url.split('/').pop();
+  }, undefined, (e) => {
+    window.RESULT.errors.push(url + ': ' + (e.message || e));
+    window.RESULT.ready = 'ERR';
+  });
+}
+loadNext();
+
+const clock = new THREE.Clock();
+function loop() {
+  requestAnimationFrame(loop);
+  const dt = clock.getDelta();
+  if (mixer) mixer.update(dt);
+  renderer.render(scene, cam);
+}
+loop();
+
+window.NEXT = () => {
+  if (current) { scene.remove(current); current = null; mixer = null; }
+  idx++;
+  window.RESULT.ready = null;
+  loadNext();
+};
+</script>
+</body>
+</html>
